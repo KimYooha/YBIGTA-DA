@@ -1,0 +1,47 @@
+1.국가별 office와 employee의 수
+select country, count(offices.officeCode), count(employeeNumber)
+from offices
+	left join employees on employees.officeCode = offices.officeCode
+group by country;
+
+2. customerFirstName이 R로 시작하는 고객 리스트
+select distinct customerName as 고객리스트
+from customers
+where contactFirstName like 'R%';
+
+3. order상태가 'Cancelled' 또는 'On Hold'인 미국 고객의 주문 건수
+select count(*) as 주문고객수
+from orders
+	left join customers on orders.customerNumber = customers.customerNumber
+where country = "USA" and status in ("Cancelled", "On Hold");
+
+4. 가장 많은 고객을 담당한 office code
+select count(distinct customerNumber), offices.officeCode 
+from offices 
+	left join employees on offices.officeCode = employees.officeCode
+	left join customers on employees.employeeNumber = customers.salesRepEmployeeNumber
+group by 2 
+order by 1 desc 
+limit 1;
+
+5. 2004년 11월 가장 많은 금액을 결제한 고객의 정보
+select payments.customernumber, customername, country, phone
+from customers
+	left join payments on customers.customernumber = payments.customernumber
+where paymentdate like '2004-11-%'
+order by amount desc
+limit 1;
+
+6. 2005년 1월의 orderDate와 shippedDate 사이 기간의 최대, 최소값
+select max(datediff(shippeddate, orderdate)) as 기간최대값, min(datediff(shippeddate, orderdate)) as 기간최소값
+from orders
+where orderDate like '2005-01-%' and shippeddate like '2005-01-%';
+
+7. 2004년 1년간 가장 많은 금액을 결제한 고객의 담당 employee정보
+select employeenumber, lastName, firstName, email, officeCode
+from employees em, customers cs, payments pay
+where em.employeeNumber = salesRepEmployeenumber and cs.customerNumber = pay.customerNumber
+and paymentdate like '2004-%'
+group by cs.customerNumber
+order by sum(amount) desc
+limit 1;
